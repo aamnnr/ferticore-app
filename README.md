@@ -1,233 +1,190 @@
-# Alburdat Presisi - Sistem Pupuk IoT
+# FERTICORE AI (Alburdat Presisi) - Sistem Pupuk IoT Presisi
 
-[![Flutter](https://flutter.dev/images/flutter-logo-sharing.png)](https://flutter.dev)
+[![Flutter](https://img.shields.io/badge/Flutter-3.11.1+-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
+[![Supabase](https://img.shields.io/badge/Supabase-Database%20%26%20Auth-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
+[![MQTT](https://img.shields.io/badge/MQTT-Secure%20(TLS/SSL)-3C82A6?style=for-the-badge&logo=mqtt&logoColor=white)](https://mqtt.org)
 
-**Alburdat Presisi** adalah sistem IoT lengkap untuk kontrol dan monitoring perangkat pemberi pupuk presisi berbasis ESP32. Terdiri dari firmware ESP32, aplikasi Flutter Dashboard (multi-platform), dan MQTT komunikasi real-time.
-
-## 📚 Dokumentasi
-
-### Untuk Pengguna Akhir
-
-- **[USER_GUIDE.md](docs/USER_GUIDE.md)** — Panduan lengkap untuk petani/pengguna
-  - Setup hardware
-  - Konfigurasi WiFi
-  - Menggunakan aplikasi
-  - Fitur-fitur detail
-  - Troubleshooting
-
-### Untuk Developer / Engineer
-
-- **[QUICK_START.md](docs/QUICK_START.md)** — Setup & run dalam 15 menit ⚡
-- **[SETUP.md](docs/SETUP.md)** — Environment setup detail untuk semua OS
-- **[DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md)** — Panduan development komprehensif
-- **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** — Arsitektur sistem & design patterns
-- **[API_REFERENCE.md](docs/API_REFERENCE.md)** — Complete API documentation
-- **[TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** — Problem solving guide
+**FERTICORE AI (Alburdat Presisi)** adalah sistem IoT komersial terintegrasi untuk mengontrol dan memantau perangkat pemberi pupuk presisi berbasis mikrokontroler ESP32. Proyek dashboard Flutter ini dirancang sebagai pusat kendali multi-platform yang terhubung ke cloud database secara real-time dan berkomunikasi secara langsung ke perangkat fisik melalui protokol komunikasi MQTT yang aman.
 
 ---
 
-## ⚡ Quick Start (Developers)
+## 📚 Hub Dokumentasi
 
-```bash
-# 1. Clone repository
-git clone <repository-url>
-cd alburdat_dashboard
+### Untuk Pengguna Akhir (Petani / Operator)
+- **[USER_GUIDE.md](docs/USER_GUIDE.md)** — Panduan instalasi fisik, konfigurasi WiFi, dan pengoperasian dashboard.
 
-# 2. Install dependencies
-flutter pub get
-
-# 3. Run (Web/Android/iOS/Desktop)
-flutter run -d chrome  # Web
-flutter run             # Android/iOS
-
-# 4. MQTT is already configured (broker.emqx.io)
-# App will auto-connect and wait for device
-```
-
-Detail setup → [QUICK_START.md](docs/QUICK_START.md) | [SETUP.md](docs/SETUP.md)
+### Untuk Pengembang / Developer
+- **[DOCUMENTATION_OVERVIEW.md](docs/DOCUMENTATION_OVERVIEW.md)** — Peta jalan panduan dan ringkasan seluruh berkas dokumentasi.
+- **[QUICK_START.md](docs/QUICK_START.md)** — Mempersiapkan workspace dan menjalankan aplikasi dalam 15 menit ⚡
+- **[SETUP.md](docs/SETUP.md)** — Konfigurasi lingkungan pengembangan (OS, SDK, flutter doctor).
+- **[DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md)** — Pedoman gaya penulisan kode, penanganan state, dan kontribusi.
+- **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** — Detail arsitektur sistem, aliran data, keamanan, dan integrasi hardware.
+- **[API_REFERENCE.md](docs/API_REFERENCE.md)** — Struktur payload MQTT, skema tabel Supabase, dan routing HTTP.
+- **[TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** — Panduan penanganan kegagalan koneksi, masalah pairing, dan error sistem.
 
 ---
 
-## ✨ Fitur Utama
+## ✨ Fitur Utama Dashboard
 
-- **📊 Monitoring Real-time**: Pantau status device (dosis, motor, statistik) secara langsung
-- **🧠 Sistem Rekomendasi**: Rekomendasi dosis otomatis berdasarkan jenis tanaman & umur tanaman (HST)
-- **⚙️ Kontrol Manual**: Atur dosis pupuk secara manual via slider atau input numerik
-- **📈 Statistik Terperinci**: Tracking penggunaan pupuk dengan chart & analytics
-- **🌐 Manajemen WiFi**: Reset konfigurasi WiFi device via aplikasi
-- **💻 Multi-platform**: Android, iOS, Web, Windows, macOS, Linux
-- **🔄 Real-time Sync**: MQTT communication untuk update status instant
+- 🔐 **Autentikasi Pengguna Aman**: Pendaftaran dan login terenkripsi menggunakan layanan cloud **Supabase Auth**.
+- 📱 **Manajemen Multi-Device (Pairing)**: Tambahkan dan kelola lebih dari satu perangkat tabur pupuk dalam satu akun pengguna.
+- 📊 **Pemantauan Telemetri Real-time**: Visualisasi data live dari ESP32 (status motor, volume pupuk, gramasi aktif, sesi tabur, dan rata-rata dosis).
+- 🧠 **Sistem Rekomendasi AI Agronomi**: Perhitungan otomatis dosis optimal berdasarkan jenis tanaman, umur tanaman (Hari Setelah Tanam / HST), dan basis pengetahuan keahlian agronomi.
+- ⚙️ **Kontrol Dosis Manual Presisi**: Penyesuaian dosis secara instan melalui slider atau input numerik dengan respons kilat via MQTT.
+- 📷 **QR Code Scanner**: Pendaftaran perangkat baru super praktis menggunakan scanner QR camera bawaan aplikasi (`mobile_scanner`).
+- 🌐 **Onboarding & WiFi Provisioning**: Panduan langkah demi langkah untuk mengonfigurasi WiFi lokal perangkat ESP32 secara nirkabel langsung dari HP.
 
-## 🏗️ Arsitektur Sistem
+---
+
+## 🏗️ Arsitektur Sistem & Aliran Data
 
 ```
-┌──────────────────────────────────┐
-│   Flutter Dashboard (Multi-OS)   │  ← Anda sedang di sini
-│  (Android, iOS, Web, Desktop)    │
-└──────────────────┬───────────────┘
-                   │ MQTT (Port 1883)
-┌──────────────────┴───────────────┐
-│       MQTT Broker/Server         │
-│ (broker.emqx.io, Mosquitto, dll) │
-└──────────────────┬───────────────┘
-                   │ WiFi
-┌──────────────────┴───────────────┐
-│      ESP32 Device (Firmware)     │  ← Hardware/Firmware terpisah
-│  - Motor DC controller           │
-│  - OLED display                  │
-│  - WiFi & MQTT client            │
-└──────────────────────────────────┘
+┌────────────────────────────────────────────────────────┐
+│               FERTICORE AI Flutter App                 │
+│      (Android, iOS, Web, Windows, macOS, Linux)        │
+└────────────┬──────────────────────────────┬────────────┘
+             │                               │
+             │ HTTPS / WebSockets            │ Secure MQTT (Port 8883)
+             │ (Otentikasi & Database)       │ (Telemetri & Kontrol Instan)
+┌────────────▼────────────┐        ┌─────────▼────────────┐
+│      Cloud Backend      │        │      MQTT Broker     │
+│   (Supabase Database)   │        │ (HiveMQ / EMQX TLS)  │
+└─────────────────────────┘        └─────────┬────────────┘
+                                             │
+                                             │ WiFi / TCP
+                                   ┌─────────▼────────────┐
+                                   │  ESP32 Ferticore AP  │
+                                   │ (DC Motor & Sensors) │
+                                   └──────────────────────┘
 ```
 
-**Tech Stack**:
+### Stack Teknologi Aplikasi:
+- **Core Framework**: Flutter 3.11.1+ (Dart SDK)
+- **State Management**: `Provider` (Pendekatan reaktif dan modular)
+- **Cloud Gateway**: `Supabase Flutter SDK` (Auth & Real-time Database dengan skema RLS yang aman)
+- **Protokol Komunikasi**: Secure MQTT (TLS/SSL aktif, port 8883) via `mqtt_client`
+- **Integrasi Hardware**: HTTP client (`http`) untuk provisioning dan `mobile_scanner` untuk QR-based setup.
 
-- **FrontEnd**: Flutter 3.11.1+ dengan Provider state management
-- **Communication**: MQTT + JSON over TCP/WebSocket
-- **Databases**: Device EEPROM (untuk statistik)
-- **Backend**: Tidak ada (P2P via MQTT broker)
+---
 
-## 📁 Project Structure
+## 📁 Struktur Direktori `lib/`
 
 ```
 lib/
-├── main.dart                      # App entry point
-├── models/
-│   ├── device_status.dart        # Device status model (dosis, motor, stats)
-│   ├── commodity.dart             # Jenis tanaman (Padi, Jagung, etc)
-│   └── rule.dart                  # Expert system rules (HST → dosis mapping)
+├── main.dart                      # Inisialisasi Supabase, Auth Gate, dan Entry Point
+├── models/                        # Representasi struktur data (Strongly-typed Models)
+│   ├── calculation_input.dart     # Parameter input rekomendasi dosis
+│   ├── calculation_result.dart    # Output kalkulasi dosis AI
+│   ├── commodity.dart             # Jenis tanaman/komoditas (Padi, Jagung, dll.)
+│   ├── device_status.dart         # Status live perangkat (MAC, gramasi, motor, stats)
+│   ├── fertilizer.dart            # Data referensi jenis pupuk
+│   └── rule.dart                  # Aturan logika sistem pakar (HST → Dosis)
 ├── data/
-│   └── knowledge_base.dart        # Knowledge base für rekomendasi
-├── services/
-│   ├── mqtt_service.dart          # MQTT connectivity & commands
-│   └── expert_system_service.dart # Dosage recommendation logic
-├── screens/
-│   ├── home_screen.dart           # Home/dashboard
-│   ├── rekomendasi_page.dart      # Recommendation page
-│   ├── manual_page.dart           # Manual control
-│   ├── info_page.dart             # App info & settings
-│   ├── wifi_page.dart             # WiFi configuration
-│   └── ...
-├── widgets/                       # Reusable UI components
-├── theme/
-│   └── theme.dart                 # App colors, fonts, styles
-└── utils/                         # Helper functions (if any)
+│   └── knowledge_base.dart        # Kumpulan aturan & knowledge base sistem rekomendasi
+├── services/                      # Logika bisnis dan integrasi API luar
+│   ├── device_onboarding_service.dart # WiFi provisioning lokal & pendaftaran ke Supabase
+│   ├── expert_system_service.dart # Mesin inferensi AI dosis agronomi presisi
+│   └── mqtt_service.dart          # Penghubung, Listener, & Publisher data MQTT (TLS/SSL)
+├── screens/                       # Halaman visual antarmuka pengguna (UI Screens)
+│   ├── splash_screen.dart         # Halaman loading pembuka aplikasi
+│   ├── login_screen.dart          # Gerbang otentikasi login & registrasi
+│   ├── home_screen.dart           # Navigasi shell utama dashboard
+│   ├── dashboard_page.dart        # Pemantau telemetri & dropdown pemilih perangkat aktif
+│   ├── rekomendasi_page.dart      # Formulir rekomendasi dosis berbasis AI
+│   ├── manual_page.dart           # Panel kontrol dosis manual slider & tombol
+│   ├── add_device_screen.dart     # Aliran onboarding 5 langkah (QR Scan -> Provision -> Success)
+│   ├── wifi_page.dart             # Reset koneksi WiFi perangkat aktif
+│   └── info_page.dart             # Pengaturan akun, status MQTT/ESP32, & opsi logout
+├── widgets/                       # Komponen antarmuka modular yang dapat digunakan kembali
+└── theme/
+    └── theme.dart                 # Konfigurasi Token Desain (warna, font, bentuk, border)
 ```
 
-## 🔧 Dependencies
+---
 
-| Package          | Version  | Purpose                      |
-| ---------------- | -------- | ---------------------------- |
-| **mqtt_client**  | ^10.11.9 | Real-time MQTT communication |
-| **provider**     | ^6.1.1   | State management             |
-| **fl_chart**     | ^1.1.1   | Statistics charts            |
-| **google_fonts** | ^8.0.2   | Typography                   |
-| **lottie**       | ^3.0.0   | Animations                   |
-| **flutter_svg**  | ^2.0.9   | SVG support                  |
-| **intl**         | 0.20.2   | Localization                 |
-| **video_player** | ^2.9.3   | Video playback               |
+## 🔧 Dependensi Aktif
 
-Lihat [pubspec.yaml](pubspec.yaml) untuk dependencies lengkap.
+Berikut adalah daftar pustaka utama yang digunakan dalam pengembangan aplikasi ini (sesuai spesifikasi [pubspec.yaml](pubspec.yaml)):
 
-## 🤝 Kontribusi
-
-**Ingin berkontribusi?** Ikuti workflow ini:
-
-1. Fork repository
-2. Buat feature branch:
-   ```bash
-   git checkout -b feature/AmazingFeature
-   ```
-3. Commit perubahan dengan pesan jelas:
-   ```bash
-   git commit -m "Add amazing feature"
-   ```
-4. Push ke branch:
-   ```bash
-   git push origin feature/AmazingFeature
-   ```
-5. Buat Pull Request dengan deskripsi detail
-
-**Development Guidelines**:
-
-- Ikuti [DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md)
-- Gunakan meaningful commit messages
-- Test sebelum submit PR
-- Update dokumentasi jika ada API changes
-
-## 📖 Dokumentasi Lengkap
-
-### Untuk Pengguna Akhir
-
-- **[USER_GUIDE.md](docs/USER_GUIDE.md)** — Panduan lengkap penggunaan sistem
-
-### Untuk Developer
-
-- **[QUICK_START.md](docs/QUICK_START.md)** — Setup & run dalam 15 menit
-- **[SETUP.md](docs/SETUP.md)** — Setup environment detail
-- **[DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md)** — Panduan development
-- **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** — Desain sistem & patterns
-- **[API_REFERENCE.md](docs/API_REFERENCE.md)** — API documentation
-- **[TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** — Problem solving
-
-## 🆘 Getting Help
-
-**Jika ada masalah:**
-
-1. **Check dokumentasi** → [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)
-2. **Run flutter doctor**:
-   ```bash
-   flutter doctor -v
-   ```
-3. **Check app logs**:
-   ```bash
-   flutter logs
-   ```
-4. **Create GitHub issue** dengan:
-   - Flutter version
-   - Device OS
-   - Error message & stacktrace
-   - Steps to reproduce
-
-## 📞 Resources
-
-- **Flutter Docs**: https://flutter.dev
-- **Dart Docs**: https://dart.dev
-- **MQTT Docs**: https://mqtt.org
-- **mqtt_client Package**: https://pub.dev/packages/mqtt_client
-- **Provider Pattern**: https://pub.dev/packages/provider
-
-## 📄 Lisensi
-
-Proyek ini dilisensikan di bawah [MIT License](LICENSE).
+| Pustaka | Versi | Fungsi / Kegunaan |
+| :--- | :--- | :--- |
+| **`supabase_flutter`** | `^2.4.0` | Otentikasi pengguna, sinkronisasi cloud, dan penyimpanan data perangkat aman. |
+| **`mqtt_client`** | `^10.11.9` | Protokol pengiriman perintah instan dan penangkap telemetri real-time. |
+| **`provider`** | `^6.1.1` | Pengelola status aplikasi terpusat (state management). |
+| **`mobile_scanner`** | `^4.0.0` | Memindai stiker QR MAC Address untuk identifikasi cepat alat. |
+| **`google_fonts`** | `^8.0.2` | Menyediakan antarmuka premium dengan tipografi *Plus Jakarta Sans*. |
+| **`http`** | `^1.2.2` | Pengiriman data WiFi ke server web lokal ESP32 (`192.168.4.1`). |
 
 ---
 
-## 🙏 Ucapan Terima Kasih
+## ⚡ Langkah Memulai (Panduan Cepat Developer)
 
-Terima kasih kepada:
+### 1. Prasyarat Sistem
+Pastikan komputer Anda telah terpasang:
+- Flutter SDK (Versi `>=3.11.1`)
+- Koneksi internet stabil untuk unduhan dependensi
 
-- Tim pengembang **Flutter** & komunitas open source
-- **MQTT** broker providers (EMQX, HiveMQ, Mosquitto)
-- Semua kontributor yang telah membantu
+### 2. Kloning Repository & Unduh Paket
+```bash
+# Kloning repositori proyek
+git clone <repository-url>
+cd alburdat_dashboard
+
+# Unduh paket dependensi yang dideklarasikan
+flutter pub get
+```
+
+### 3. Konfigurasi Kredensial Lingkungan (`secrets.json`)
+Aplikasi ini membaca kredensial cloud secara aman pada compile-time. Pastikan Anda memiliki berkas `secrets.json` di root folder proyek Anda dengan format sebagai berikut:
+
+```json
+{
+  "SUPABASE_URL": "https://<project-ref>.supabase.co",
+  "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1Ni...",
+  "MQTT_BROKER": "<broker-address>.hivemq.cloud",
+  "MQTT_PORT": "8883",
+  "MQTT_USER": "nama_pengguna_mqtt",
+  "MQTT_PASS": "sandi_aman_mqtt"
+}
+```
+
+### 4. Menjalankan Aplikasi
+Jalankan aplikasi di perangkat target (Web, Android, iOS, Windows, macOS) dengan mengaitkan konfigurasi `secrets.json` Anda:
+
+```bash
+# Menjalankan di Google Chrome (Web)
+flutter run -d chrome --dart-define-from-file=secrets.json
+
+# Menjalankan di Android/iOS/Desktop
+flutter run --dart-define-from-file=secrets.json
+```
 
 ---
 
-## 📊 Project Status
+## 🔌 Alur Onboarding Alat Baru
 
-| Component          | Status           | Version  |
-| ------------------ | ---------------- | -------- |
-| **Flutter App**    | ✅ Stable        | 1.0.1    |
-| **Documentation**  | ✅ Complete      | 2024     |
-| **ESP32 Firmware** | ⚠️ Separate repo | See docs |
-| **MQTT Protocol**  | ✅ Stable        | v3.1.1   |
+Untuk menghubungkan mesin tabur pupuk **FERTICORE** baru milik pengguna ke dashboard cloud:
+1. **Pindai QR**: Masuk ke menu "Tambah Alat Baru" di aplikasi, lalu pindai kode QR fisik pada alat untuk mendapatkan `mac_address`.
+2. **Koneksi AP**: Sambungkan WiFi ponsel Anda ke hotspot lokal yang dipancarkan alat (SSID: `FERTICORE_[4_angka_MAC]`, sandi default: `12345678`).
+3. **Kirim WiFi**: Masukkan SSID & kata sandi WiFi rumah/kebun Anda di form aplikasi, lalu tekan "Sinkronisasi Alat". Aplikasi akan mengirimkan kredensial tersebut ke alat fisik via IP lokal `192.168.4.1`.
+4. **Klaim Cloud**: Aplikasi secara otomatis mendaftarkan kepemilikan alat ke akun Supabase Anda secara aman. Alat kini siap dipantau dari manapun!
 
 ---
 
-**⭐ Jika project ini bermanfaat, please star repository!**
+## 📊 Status Komponen Proyek
 
-**Last Updated**: 2024  
+| Komponen | Status Layanan | Target Rilis / Versi |
+| :--- | :--- | :--- |
+| **Flutter Dashboard** | Stable / Production-Ready | `1.0.1` |
+| **MQTT Gateway (TLS)** | Aktif / Terenkripsi | Port `8883` |
+| **Supabase Cloud Layer** | Aktif / RLS Secures | Live Database |
+| **ESP32 Firmware** | Repositori Terpisah | Kompatibel v1.0 |
+
+---
+
+**⭐ Sukses Mengembangkan Ferticore AI!**  
+*Jika Anda menghadapi kesulitan atau menemukan bug selama pengembangan, silakan merujuk ke panduan [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) atau buat laporan pada tim kontributor.*
+
+---
+**Last Updated**: May 2026  
 **Maintainer**: [Aamiin / Development Team]
-
----
-
-_Untuk developer yang melanjutkan project ini setelah saya tidak disini lagi: Silahkan baca [DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md) terlebih dahulu untuk memahami seluruh project structure dan development workflow. Dokumentasi sudah lengkap untuk memandu Anda. Sukses! 🚀_

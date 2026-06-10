@@ -10,10 +10,13 @@ class MqttService extends ChangeNotifier {
   
   // --- KONFIGURASI KOMERSIAL ---
   static const String broker = String.fromEnvironment('MQTT_BROKER', defaultValue: 'nama-broker-emqx-kalian.emqxsl.com');
-  static const int port = int.fromEnvironment('MQTT_PORT', defaultValue: 8883);
   static const String mqttUser = String.fromEnvironment('MQTT_USER', defaultValue: 'perangkat_ferticore');
   static const String mqttPass = String.fromEnvironment('MQTT_PASS', defaultValue: 'sandi_aman_123');
   
+  // Port default untuk dua protokol
+  static const int _tcpPort = 8883;      // MQTT over TLS (mobile/desktop)
+  static const int _webSocketPort = 8084; // WSS (web)
+
   final String clientIdentifier = 'FERTICORE_${DateTime.now().millisecondsSinceEpoch}';
 
   bool _isConnecting = false;
@@ -23,17 +26,13 @@ class MqttService extends ChangeNotifier {
   bool get isConnected => _isConnected;
 
   // --- MULTI-DEVICE STATE ---
-  // Menyimpan status dan waktu terakhir untuk BANYAK perangkat berdasarkan MAC Address
   final Map<String, DeviceStatus> _deviceStatuses = {};
   final Map<String, DateTime> _lastStatusTimes = {};
   
-  // Daftar MAC Address yang dimiliki oleh user (diambil dari Supabase)
   List<String> _activeDeviceIds = [];
 
-  // Mendapatkan status spesifik untuk satu alat
   DeviceStatus? getDeviceStatus(String deviceId) => _deviceStatuses[deviceId];
   
-  // Mengecek apakah alat spesifik sedang online
   bool isEspOnline(String deviceId) {
     final lastTime = _lastStatusTimes[deviceId];
     if (lastTime == null) return false;
@@ -50,20 +49,31 @@ class MqttService extends ChangeNotifier {
     _initClient();
   }
 
+  // 🔁 INILAH BAGIAN YANG DIUBAH UNTUK DUKUNGAN WEB
   void _initClient() {
     client = MqttServerClient(broker, clientIdentifier);
-    client.port = port;
-    client.useWebSocket = false;
     
-    // AKTIFKAN KEAMANAN TLS/SSL
-    client.secure = true;
+    // Penyesuaian otomatis berdasarkan platform
+    if (kIsWeb) {
+      // Web → gunakan WebSocket aman (WSS)
+      client.port = _webSocketPort;       // 8084
+      client.useWebSocket = true;
+      client.secure = true;               // WSS
+      // Jika broker-mu mengharuskan path tertentu, aktifkan ini:
+      // client.websocketPath = '/mqtt';
+    } else {
+      // Mobile/Desktop → gunakan MQTT over TLS (TCP)
+      client.port = _tcpPort;             // 8883
+      client.useWebSocket = false;
+      client.secure = true;               // TLS
+    }
+    
     client.setProtocolV311();
 
-    // KREDENSIAL AUTENTIKASI
     final connMess = MqttConnectMessage()
         .authenticateAs(mqttUser, mqttPass)
         .withClientIdentifier(clientIdentifier)
-        .startClean(); // Session bersih saat connect
+        .startClean();
     client.connectionMessage = connMess;
 
     client.logging(on: false);
