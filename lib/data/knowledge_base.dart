@@ -1,108 +1,80 @@
-import 'package:alburdat_dashboard/models/commodity.dart';
-import 'package:alburdat_dashboard/models/fertilizer.dart';
-import 'package:alburdat_dashboard/models/rule.dart';
+import 'package:alburdat_dashboard/data/models/agronomy.dart';
 
-/// ========================
-/// FERTILIZER MASTER DATA
-/// ========================
-const fertilizers = [
-  Fertilizer(id: 1, name: 'NPK'),
-  Fertilizer(id: 2, name: 'Urea'),
+/// Basis pengetahuan agronomi. Untuk menambah komoditas cukup tambahkan
+/// entri di [commodities] dan aturannya di [doseRules] — tidak perlu
+/// menyentuh logika atau UI.
+
+const List<Fertilizer> fertilizers = [
+  Fertilizer(id: 1, name: 'NPK', multiplier: 1.0),
+  Fertilizer(id: 2, name: 'Urea', multiplier: 0.7),
 ];
 
-/// multiplier pupuk
-const fertilizerMultipliers = {
-  1: 1.0,
-  2: 0.7,
-};
-
-/// ========================
-/// COMMODITY + JARAK TANAM
-/// ========================
 const List<Commodity> commodities = [
-  Commodity(id: 1, name: 'Jagung', jarakTanam: 0.7),
-  Commodity(id: 2, name: 'Cabai Merah', jarakTanam: 0.5),
-  Commodity(id: 3, name: 'Kentang', jarakTanam: 0.4),
-  Commodity(id: 4, name: 'Alpukat', jarakTanam: 5.0),
-  Commodity(id: 5, name: 'Buah Naga', jarakTanam: 3.0),
-  Commodity(id: 6, name: 'Durian', jarakTanam: 8.0),
-  Commodity(id: 7, name: 'Kakao', jarakTanam: 3.0),
-  Commodity(id: 8, name: 'Karet', jarakTanam: 6.0),
-  Commodity(id: 9, name: 'Sawit', jarakTanam: 9.0),
-  Commodity(id: 10, name: 'Kopi', jarakTanam: 2.0),
-  Commodity(id: 11, name: 'Pala', jarakTanam: 6.0),
-  Commodity(id: 12, name: 'Pisang', jarakTanam: 3.0),
-  Commodity(id: 13, name: 'Tebu', jarakTanam: 1.2),
+  Commodity(id: 1, name: 'Jagung', plantSpacing: 0.7),
+  Commodity(id: 2, name: 'Cabai Merah', plantSpacing: 0.5),
+  Commodity(id: 3, name: 'Kentang', plantSpacing: 0.4),
+  Commodity(id: 4, name: 'Alpukat', plantSpacing: 5.0),
+  Commodity(id: 5, name: 'Buah Naga', plantSpacing: 3.0),
+  Commodity(id: 6, name: 'Durian', plantSpacing: 8.0),
+  Commodity(id: 7, name: 'Kakao', plantSpacing: 3.0),
+  Commodity(id: 8, name: 'Karet', plantSpacing: 6.0),
+  Commodity(id: 9, name: 'Sawit', plantSpacing: 9.0),
+  Commodity(id: 10, name: 'Kopi', plantSpacing: 2.0),
+  Commodity(id: 11, name: 'Pala', plantSpacing: 6.0),
+  Commodity(id: 12, name: 'Pisang', plantSpacing: 3.0),
+  Commodity(id: 13, name: 'Tebu', plantSpacing: 1.2),
 ];
 
-const Map<int, List<Rule>> knowledgeBase = {
-  1: [
-    Rule(minHst: 0, maxHst: 20, dosis: 3.6),
-    Rule(minHst: 21, maxHst: double.infinity, dosis: 2.9),
-  ],
-  2: [
-    Rule(minHst: 0, maxHst: double.infinity, dosis: 2.9),
-  ],
-  3: [
-    Rule(minHst: 0, maxHst: 20, dosis: 6.0),
-    Rule(minHst: 21, maxHst: double.infinity, dosis: 2.4),
-  ],
+/// Aturan per komoditas, WAJIB terurut naik berdasarkan `fromHst`
+/// dan aturan pertama dimulai dari 0.
+const Map<int, List<DoseRule>> doseRules = {
+  1: [DoseRule(fromHst: 0, dose: 3.6), DoseRule(fromHst: 21, dose: 2.9)],
+  2: [DoseRule(fromHst: 0, dose: 2.9)],
+  3: [DoseRule(fromHst: 0, dose: 6.0), DoseRule(fromHst: 21, dose: 2.4)],
   4: [
-    Rule(minHst: 0, maxHst: 90, dosis: 80.0),
-    Rule(minHst: 91, maxHst: 180, dosis: 315.0),
-    Rule(minHst: 181, maxHst: double.infinity, dosis: 1325.0),
+    DoseRule(fromHst: 0, dose: 80.0),
+    DoseRule(fromHst: 91, dose: 315.0),
+    DoseRule(fromHst: 181, dose: 1325.0),
   ],
-  5: [
-    Rule(minHst: 0, maxHst: double.infinity, dosis: 15.0),
-  ],
+  5: [DoseRule(fromHst: 0, dose: 15.0)],
   6: [
-    Rule(minHst: 0, maxHst: 720, dosis: 200.0),
-    Rule(minHst: 721, maxHst: 1440, dosis: 400.0),
-    Rule(minHst: 1441, maxHst: 2880, dosis: 600.0),
-    Rule(minHst: 2881, maxHst: double.infinity, dosis: 850.0),
+    DoseRule(fromHst: 0, dose: 200.0),
+    DoseRule(fromHst: 721, dose: 400.0),
+    DoseRule(fromHst: 1441, dose: 600.0),
+    DoseRule(fromHst: 2881, dose: 850.0),
   ],
   7: [
-    Rule(minHst: 0, maxHst: 360, dosis: 25.0),
-    Rule(minHst: 361, maxHst: 720, dosis: 45.0),
-    Rule(minHst: 721, maxHst: 1080, dosis: 90.0),
-    Rule(minHst: 1081, maxHst: 1440, dosis: 180.0),
-    Rule(minHst: 1441, maxHst: double.infinity, dosis: 220.0),
+    DoseRule(fromHst: 0, dose: 25.0),
+    DoseRule(fromHst: 361, dose: 45.0),
+    DoseRule(fromHst: 721, dose: 90.0),
+    DoseRule(fromHst: 1081, dose: 180.0),
+    DoseRule(fromHst: 1441, dose: 220.0),
   ],
-
-  // ========================
-  // TAMBAHAN (8–13)
-  // ========================
-
-  8: [ // Karet
-    Rule(minHst: 0, maxHst: 1080, dosis: 250.0),
-    Rule(minHst: 1081, maxHst: 1440, dosis: 300.0),
-    Rule(minHst: 1441, maxHst: 1800, dosis: 350.0),
-    Rule(minHst: 1801, maxHst: double.infinity, dosis: 200.0),
+  8: [
+    DoseRule(fromHst: 0, dose: 250.0),
+    DoseRule(fromHst: 1081, dose: 300.0),
+    DoseRule(fromHst: 1441, dose: 350.0),
+    DoseRule(fromHst: 1801, dose: 200.0),
   ],
-  9: [ // Sawit
-    Rule(minHst: 0, maxHst: 30, dosis: 100.0),
-    Rule(minHst: 31, maxHst: 240, dosis: 150.0),
-    Rule(minHst: 241, maxHst: double.infinity, dosis: 200.0),
+  9: [
+    DoseRule(fromHst: 0, dose: 100.0),
+    DoseRule(fromHst: 31, dose: 150.0),
+    DoseRule(fromHst: 241, dose: 200.0),
   ],
-  10: [ // Kopi
-    Rule(minHst: 0, maxHst: 14, dosis: 106.0),
-    Rule(minHst: 15, maxHst: 120, dosis: 80.0),
-    Rule(minHst: 121, maxHst: 210, dosis: 53.0),
-    Rule(minHst: 211, maxHst: 330, dosis: 26.0),
-    Rule(minHst: 331, maxHst: double.infinity, dosis: 20.0),
+  10: [
+    DoseRule(fromHst: 0, dose: 106.0),
+    DoseRule(fromHst: 15, dose: 80.0),
+    DoseRule(fromHst: 121, dose: 53.0),
+    DoseRule(fromHst: 211, dose: 26.0),
+    DoseRule(fromHst: 331, dose: 20.0),
   ],
-  11: [ // Pala
-    Rule(minHst: 0, maxHst: 720, dosis: 20.0),
-    Rule(minHst: 721, maxHst: 1440, dosis: 40.0),
-    Rule(minHst: 1441, maxHst: 2520, dosis: 80.0),
-    Rule(minHst: 2521, maxHst: 5400, dosis: 100.0),
-    Rule(minHst: 5401, maxHst: double.infinity, dosis: 120.0),
+  11: [
+    DoseRule(fromHst: 0, dose: 20.0),
+    DoseRule(fromHst: 721, dose: 40.0),
+    DoseRule(fromHst: 1441, dose: 80.0),
+    DoseRule(fromHst: 2521, dose: 100.0),
+    DoseRule(fromHst: 5401, dose: 120.0),
   ],
-  12: [ // Pisang
-    Rule(minHst: 0, maxHst: 167, dosis: 100.0),
-    Rule(minHst: 168, maxHst: double.infinity, dosis: 150.0),
-  ],
-  13: [ // Tebu
-    Rule(minHst: 0, maxHst: double.infinity, dosis: 3.75),
-  ],
+  12: [DoseRule(fromHst: 0, dose: 100.0), DoseRule(fromHst: 168, dose: 150.0)],
+  13: [DoseRule(fromHst: 0, dose: 3.75)],
 };

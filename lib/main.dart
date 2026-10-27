@@ -1,27 +1,14 @@
+import 'package:alburdat_dashboard/app.dart';
+import 'package:alburdat_dashboard/data/repositories/settings_repository.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:alburdat_dashboard/services/mqtt_service.dart';
-import 'package:alburdat_dashboard/theme/theme.dart';
-import 'package:alburdat_dashboard/screens/home_screen.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('id_ID');
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final settings = SettingsRepository();
+  final onboarded = await settings.isOnboarded();
 
-  @override
-  Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => MqttService()..connect()),
-      ],
-      child: MaterialApp(
-        title: 'FERTICORE AI Dashboard',
-        theme: AppTheme.lightTheme,
-        home: const HomeScreen(),
-      ),
-    );
-  }
+  runApp(FerticoreApp(settings: settings, onboarded: onboarded));
 }
